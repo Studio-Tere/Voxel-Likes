@@ -1,0 +1,123 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Voxel Likes 0.2.2\n"
+"Report-Msgid-Bugs-To: https://studiotere.io\n"
+"POT-Creation-Date: 2026-06-18 00:00+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Domain: voxel-likes\n"
+
+msgid "Voxel Likes"
+msgstr ""
+
+msgid "Adds reusable IP-based likes for Voxel posts, Voxel Actions, dynamic tags, and listing order filters."
+msgstr ""
+
+msgid "Ver detalles de Voxel Likes"
+msgstr ""
+
+msgid "Ver detalles"
+msgstr ""
+
+msgid "Stores likes in a dedicated WordPress database table."
+msgstr ""
+
+msgid "Uses an HMAC hash of the visitor IP instead of storing the raw IP address."
+msgstr ""
+
+msgid "Keeps unlike rows with liked = 0 for state history."
+msgstr ""
+
+msgid "Adds a Voxel search order for posts with the most likes."
+msgstr ""
+
+msgid "Version 0.2.2"
+msgstr ""
+
+msgid "Like counter dynamic tags now update through AJAX after toggling a like."
+msgstr ""
+
+msgid "Version 0.2.1"
+msgstr ""
+
+msgid "Added the Likes dynamic tag group with total and count values."
+msgstr ""
+
+msgid "Removed the automatic visible text and count from the Like action."
+msgstr ""
+
+msgid "Version 0.2.0"
+msgstr ""
+
+msgid "Renamed the plugin to Voxel Likes."
+msgstr ""
+
+msgid "Likes now work with any valid Voxel post type."
+msgstr ""
+
+msgid "The Most liked order is installed across Voxel post type filters."
+msgstr ""
+
+msgid "Version 0.1.1"
+msgstr ""
+
+msgid "Added a Voxel dynamic tag for the like counter."
+msgstr ""
+
+msgid "Version 0.1.0"
+msgstr ""
+
+msgid "Initial plugin release."
+msgstr ""
+
+msgid "Added the Like action for the Voxel Actions widget."
+msgstr ""
+
+msgid "Added the likes table with hashed IP state tracking."
+msgstr ""
+
+msgid "Added automatic cleanup when a post is permanently deleted."
+msgstr ""
+
+msgid "Ordenar"
+msgstr ""
+
+msgid "Mas likes"
+msgstr ""
+
+msgid "Like"
+msgstr ""
+
+msgid "Like count"
+msgstr ""
+
+msgid "Likes"
+msgstr ""
+
+msgid "Like data for this post."
+msgstr ""
+
+msgid "Total"
+msgstr ""
+
+msgid "Count"
+msgstr ""
+
+msgid "Number of active likes for this post."
+msgstr ""
+
+msgid "Live number of active likes for this post."
+msgstr ""
+
+msgid "Liked"
+msgstr ""
+
+msgid "Invalid request."
+msgstr ""
+
+msgid "Invalid post."
+msgstr ""
+
+msgid "Post likes"
+msgstr ""

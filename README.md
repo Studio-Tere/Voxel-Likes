@@ -1,12 +1,12 @@
 # Voxel Likes
 
-Add reusable IP-based likes for Voxel posts, Actions, dynamic tags, and sorting filters in listings.
+Add reusable IP-based likes, post views, reading time, Actions, dynamic tags, and sorting filters for Voxel posts.
 
 Voxel Likes is built for WordPress sites using the Voxel theme. It adds a reusable like/unlike system that works for Voxel-managed post types without storing raw visitor IP addresses.
 
 ## Features
 
-- Adds a `Like` action to the Voxel Actions widget.
+- Adds `Like`, `Post views`, and `Reading time` actions to the Voxel Actions widget.
 - Supports guests and logged-in users.
 - Stores only an HMAC hash of the visitor IP.
 - Keeps unlike rows with `liked = 0`.
@@ -14,6 +14,12 @@ Voxel Likes is built for WordPress sites using the Voxel theme. It adds a reusab
 - Adds dynamic tags:
   - `@post(likes.total)`
   - `@post(likes.count)`
+  - `@post(views.total)`
+  - `@post(views.count)`
+  - `@post(views.unique_total)`
+  - `@post(reading_time.minutes)`
+  - `@post(reading_time.label)`
+  - `@post(reading_time.words)`
 - Updates like counters through AJAX after toggling a like.
 - Adds a `Mas likes` order option to Voxel post type filters and listings.
 - Cleans likes automatically when a post is permanently deleted.
@@ -39,6 +45,8 @@ In the **Actions (VX)** widget, add the **Like** action.
 
 The action does not force visible text by default. Use the action icon and the widget's own text field if you want a label.
 
+You can also add **Post views** and **Reading time** actions. If their text field is empty, they display the all-time view count or localized reading-time label. If you add text or a dynamic tag in the widget field, that custom text is used instead.
+
 ### Dynamic Tags
 
 Use these Voxel dynamic tags anywhere the current post is available:
@@ -46,9 +54,19 @@ Use these Voxel dynamic tags anywhere the current post is available:
 ```text
 @post(likes.total)
 @post(likes.count)
+@post(views.total)
+@post(views.count)
+@post(views.unique_total)
+@post(reading_time.minutes)
+@post(reading_time.label)
+@post(reading_time.words)
 ```
 
-Both tags output the active like count and update through AJAX after a visitor toggles a like on the same page.
+The likes tags output the active like count and update through AJAX after a visitor toggles a like on the same page.
+
+The views tags read Voxel's native traffic statistics. Voxel statistics must be enabled for the relevant post type in **Voxel > Settings > Statistics**; otherwise, the tags return `0`.
+
+Reading time is calculated from the WordPress post content at 200 words per minute by default. Developers can adjust this with the `voxel_likes/reading_time_words_per_minute` filter.
 
 The legacy hidden tag `@post(like_count)` remains for compatibility, but new templates should use `@post(likes.total)` or `@post(likes.count)`.
 
@@ -83,6 +101,11 @@ Raw IP addresses are not stored.
 - Existing data from `wp_publicacion_likes` is copied into `wp_voxel_likes` during activation if the old table exists.
 
 ## Changelog
+
+### 0.3.0
+
+- Added `Post views` and `Reading time` actions for the Voxel Actions widget.
+- Added dynamic tags for Voxel post views and estimated reading time.
 
 ### 0.2.2
 

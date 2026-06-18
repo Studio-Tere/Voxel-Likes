@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: Voxel Likes
- * Description: Adds reusable IP-based likes for Voxel posts, Voxel Actions, dynamic tags, and listing order filters.
- * Version: 0.2.2
+ * Description: Adds reusable IP-based likes, post views, reading time, Voxel Actions, dynamic tags, and listing order filters.
+ * Version: 0.3.0
  * Author: Studio Tere
  * Author URI: https://studiotere.io
  * Plugin URI: https://studiotere.io
@@ -15,10 +15,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 final class Voxel_Likes_Plugin {
-	const VERSION = '0.2.2';
+	const VERSION = '0.3.0';
 	const PLUGIN_SLUG = 'voxel-likes';
 	const ACTION_TYPE = 'voxel_like';
 	const LEGACY_ACTION_TYPE = 'publicacion_like';
+	const VIEWS_ACTION_TYPE = 'voxel_post_views';
+	const READING_TIME_ACTION_TYPE = 'voxel_reading_time';
 	const AJAX_ACTION = 'voxel_likes.toggle';
 	const LEGACY_AJAX_ACTION = 'publicacion_likes.toggle';
 	const NONCE_ACTION = 'voxel_likes_toggle';
@@ -44,9 +46,11 @@ final class Voxel_Likes_Plugin {
 		add_filter( 'voxel/advanced-list/actions', [ $this, 'register_voxel_action' ] );
 		add_action( 'voxel/advanced-list/action:' . self::ACTION_TYPE, [ $this, 'render_voxel_action' ], 10, 2 );
 		add_action( 'voxel/advanced-list/action:' . self::LEGACY_ACTION_TYPE, [ $this, 'render_voxel_action' ], 10, 2 );
+		add_action( 'voxel/advanced-list/action:' . self::VIEWS_ACTION_TYPE, [ $this, 'render_post_views_action' ], 10, 2 );
+		add_action( 'voxel/advanced-list/action:' . self::READING_TIME_ACTION_TYPE, [ $this, 'render_reading_time_action' ], 10, 2 );
 		add_filter( 'voxel/orderby-types', [ $this, 'register_voxel_orderby_type' ] );
-		add_filter( 'voxel/dynamic-data/groups/post/properties', [ $this, 'register_like_count_tag' ], 10, 2 );
-		add_filter( 'voxel/dynamic-data/groups/simple-post/properties', [ $this, 'register_like_count_tag' ], 10, 2 );
+		add_filter( 'voxel/dynamic-data/groups/post/properties', [ $this, 'register_post_dynamic_tags' ], 10, 2 );
+		add_filter( 'voxel/dynamic-data/groups/simple-post/properties', [ $this, 'register_post_dynamic_tags' ], 10, 2 );
 		add_action( 'admin_init', [ $this, 'maybe_refresh_voxel_search_config' ] );
 
 		add_action( 'voxel_ajax_' . self::AJAX_ACTION, [ $this, 'handle_toggle_request' ] );
@@ -111,14 +115,17 @@ final class Voxel_Likes_Plugin {
 			'sections' => [
 				'description' => sprintf(
 					'<p>%s</p><ul><li>%s</li><li>%s</li><li>%s</li><li>%s</li></ul>',
-					esc_html__( 'Adds reusable IP-based likes for Voxel posts, Voxel Actions, dynamic tags, and listing order filters.', 'voxel-likes' ),
+					esc_html__( 'Adds reusable IP-based likes, post views, reading time, Voxel Actions, dynamic tags, and listing order filters.', 'voxel-likes' ),
 					esc_html__( 'Stores likes in a dedicated WordPress database table.', 'voxel-likes' ),
 					esc_html__( 'Uses an HMAC hash of the visitor IP instead of storing the raw IP address.', 'voxel-likes' ),
 					esc_html__( 'Keeps unlike rows with liked = 0 for state history.', 'voxel-likes' ),
 					esc_html__( 'Adds a Voxel search order for posts with the most likes.', 'voxel-likes' )
 				),
 				'actualizaciones_de_version' => sprintf(
-					'<h4>%s</h4><ul><li>%s</li></ul><h4>%s</h4><ul><li>%s</li><li>%s</li></ul><h4>%s</h4><ul><li>%s</li><li>%s</li><li>%s</li></ul><h4>%s</h4><ul><li>%s</li></ul><h4>%s</h4><ul><li>%s</li><li>%s</li><li>%s</li><li>%s</li></ul>',
+					'<h4>%s</h4><ul><li>%s</li><li>%s</li></ul><h4>%s</h4><ul><li>%s</li></ul><h4>%s</h4><ul><li>%s</li><li>%s</li></ul><h4>%s</h4><ul><li>%s</li><li>%s</li><li>%s</li></ul><h4>%s</h4><ul><li>%s</li></ul><h4>%s</h4><ul><li>%s</li><li>%s</li><li>%s</li><li>%s</li></ul>',
+					esc_html__( 'Version 0.3.0', 'voxel-likes' ),
+					esc_html__( 'Added Post views and Reading time actions for the Voxel Actions widget.', 'voxel-likes' ),
+					esc_html__( 'Added dynamic tags for post views and reading time.', 'voxel-likes' ),
 					esc_html__( 'Version 0.2.2', 'voxel-likes' ),
 					esc_html__( 'Like counter dynamic tags now update through AJAX after toggling a like.', 'voxel-likes' ),
 					esc_html__( 'Version 0.2.1', 'voxel-likes' ),
@@ -294,6 +301,8 @@ final class Voxel_Likes_Plugin {
 
 	public function register_voxel_action( array $actions ): array {
 		$actions[ self::ACTION_TYPE ] = __( 'Like', 'voxel-likes' );
+		$actions[ self::VIEWS_ACTION_TYPE ] = __( 'Post views', 'voxel-likes' );
+		$actions[ self::READING_TIME_ACTION_TYPE ] = __( 'Reading time', 'voxel-likes' );
 		return $actions;
 	}
 
@@ -309,7 +318,7 @@ final class Voxel_Likes_Plugin {
 		return $types;
 	}
 
-	public function register_like_count_tag( array $properties, $group ): array {
+	public function register_post_dynamic_tags( array $properties, $group ): array {
 		if ( ! class_exists( '\Voxel\Dynamic_Data\Tag' ) ) {
 			return $properties;
 		}
@@ -328,6 +337,26 @@ final class Voxel_Likes_Plugin {
 			$post_id = $post_id_cb();
 			wp_enqueue_script( 'voxel-likes' );
 			return $plugin->get_like_count_markup( $post_id, $post_id ? $plugin->get_like_count( $post_id ) : 0 );
+		};
+		$views_cb = function() use ( $plugin, $post_id_cb ) {
+			$post_id = $post_id_cb();
+			return $post_id ? $plugin->get_post_views( $post_id ) : 0;
+		};
+		$unique_views_cb = function() use ( $plugin, $post_id_cb ) {
+			$post_id = $post_id_cb();
+			return $post_id ? $plugin->get_post_unique_views( $post_id ) : 0;
+		};
+		$reading_minutes_cb = function() use ( $plugin, $post_id_cb ) {
+			$post_id = $post_id_cb();
+			return $post_id ? $plugin->get_reading_time_minutes( $post_id ) : 0;
+		};
+		$reading_label_cb = function() use ( $plugin, $post_id_cb ) {
+			$post_id = $post_id_cb();
+			return $post_id ? $plugin->get_reading_time_label( $post_id ) : '';
+		};
+		$reading_words_cb = function() use ( $plugin, $post_id_cb ) {
+			$post_id = $post_id_cb();
+			return $post_id ? $plugin->get_reading_time_word_count( $post_id ) : 0;
 		};
 
 		$properties['likes'] = \Voxel\Dynamic_Data\Tag::Object(
@@ -350,6 +379,46 @@ final class Voxel_Likes_Plugin {
 			__( 'Like count', 'voxel-likes' ),
 			__( 'Number of active likes for this post.', 'voxel-likes' )
 		)->render( $count_cb )->hidden();
+
+		$properties['views'] = \Voxel\Dynamic_Data\Tag::Object(
+			__( 'Views', 'voxel-likes' ),
+			__( 'Voxel traffic stats for this post.', 'voxel-likes' )
+		)->properties( function() use ( $views_cb, $unique_views_cb ) {
+			return [
+				'total' => \Voxel\Dynamic_Data\Tag::Number(
+					__( 'Total', 'voxel-likes' ),
+					__( 'All-time view count for this post.', 'voxel-likes' )
+				)->render( $views_cb ),
+				'count' => \Voxel\Dynamic_Data\Tag::Number(
+					__( 'Count', 'voxel-likes' ),
+					__( 'All-time view count for this post.', 'voxel-likes' )
+				)->render( $views_cb ),
+				'unique_total' => \Voxel\Dynamic_Data\Tag::Number(
+					__( 'Unique total', 'voxel-likes' ),
+					__( 'All-time unique view count for this post.', 'voxel-likes' )
+				)->render( $unique_views_cb ),
+			];
+		} );
+
+		$properties['reading_time'] = \Voxel\Dynamic_Data\Tag::Object(
+			__( 'Reading time', 'voxel-likes' ),
+			__( 'Estimated reading time for this post.', 'voxel-likes' )
+		)->properties( function() use ( $reading_minutes_cb, $reading_label_cb, $reading_words_cb ) {
+			return [
+				'minutes' => \Voxel\Dynamic_Data\Tag::Number(
+					__( 'Minutes', 'voxel-likes' ),
+					__( 'Estimated reading time in minutes.', 'voxel-likes' )
+				)->render( $reading_minutes_cb ),
+				'label' => \Voxel\Dynamic_Data\Tag::String(
+					__( 'Label', 'voxel-likes' ),
+					__( 'Localized reading time label.', 'voxel-likes' )
+				)->render( $reading_label_cb ),
+				'words' => \Voxel\Dynamic_Data\Tag::Number(
+					__( 'Word count', 'voxel-likes' ),
+					__( 'Approximate number of words in the post content.', 'voxel-likes' )
+				)->render( $reading_words_cb ),
+			];
+		} );
 
 		return $properties;
 	}
@@ -425,6 +494,49 @@ final class Voxel_Likes_Plugin {
 					<?php endif; ?>
 				</span>
 			</a>
+		</li>
+		<?php
+	}
+
+	public function render_post_views_action( $widget, array $action ): void {
+		$post_id = $this->get_current_post_id();
+		if ( ! $post_id ) {
+			return;
+		}
+
+		$text = $this->normalize_action_text( $action['ts_acw_initial_text'] ?? '' );
+		$content = $text !== '' ? $text : (string) $this->get_post_views( $post_id );
+		$this->render_metric_action( $widget, $action, $content, __( 'Post views', 'voxel-likes' ), 'voxel-post-views-action' );
+	}
+
+	public function render_reading_time_action( $widget, array $action ): void {
+		$post_id = $this->get_current_post_id();
+		if ( ! $post_id ) {
+			return;
+		}
+
+		$text = $this->normalize_action_text( $action['ts_acw_initial_text'] ?? '' );
+		$content = $text !== '' ? $text : $this->get_reading_time_label( $post_id );
+		$this->render_metric_action( $widget, $action, $content, __( 'Reading time', 'voxel-likes' ), 'voxel-reading-time-action' );
+	}
+
+	private function render_metric_action( $widget, array $action, string $content, string $aria_label, string $class_name ): void {
+		$tooltip = $action['ts_tooltip_text'] ?? '';
+		$columns_class = method_exists( $widget, 'get_settings_for_display' ) ? $widget->get_settings_for_display( 'ts_al_columns_no' ) : '';
+		?>
+		<li class="elementor-repeater-item-<?php echo esc_attr( $action['_id'] ?? '' ); ?> flexify ts-action <?php echo esc_attr( $columns_class ); ?>"
+			<?php if ( ( $action['ts_enable_tooltip'] ?? '' ) === 'yes' && $tooltip !== '' ) : ?>
+				tooltip-inactive="<?php echo esc_attr( $tooltip ); ?>"
+			<?php endif; ?>
+		>
+			<div class="ts-action-con <?php echo esc_attr( $class_name ); ?>" aria-label="<?php echo esc_attr( $aria_label ); ?>">
+				<span class="ts-initial">
+					<div class="ts-action-icon"><?php $this->render_action_icon( $action['ts_acw_initial_icon'] ?? [] ); ?></div>
+					<?php if ( $content !== '' ) : ?>
+						<span class="voxel-metric-label"><?php echo wp_kses_post( $content ); ?></span>
+					<?php endif; ?>
+				</span>
+			</div>
 		</li>
 		<?php
 	}
@@ -535,6 +647,72 @@ final class Voxel_Likes_Plugin {
 			'<span class="voxel-like-count" data-voxel-likes-count="1" data-post-id="%d">%d</span>',
 			$post_id,
 			$count
+		);
+	}
+
+	public function get_post_views( int $post_id, string $timeframe = 'all' ): int {
+		$stats = $this->get_voxel_post_stats( $post_id );
+		return $stats && method_exists( $stats, 'get_views' ) ? absint( $stats->get_views( $timeframe ) ) : 0;
+	}
+
+	public function get_post_unique_views( int $post_id, string $timeframe = 'all' ): int {
+		$stats = $this->get_voxel_post_stats( $post_id );
+		return $stats && method_exists( $stats, 'get_unique_views' ) ? absint( $stats->get_unique_views( $timeframe ) ) : 0;
+	}
+
+	private function get_voxel_post_stats( int $post_id ) {
+		if ( ! class_exists( '\Voxel\Post' ) ) {
+			return null;
+		}
+
+		$post = \Voxel\Post::get( $post_id );
+		if ( ! $post || ! isset( $post->stats ) ) {
+			return null;
+		}
+
+		if ( isset( $post->post_type ) && method_exists( $post->post_type, 'is_tracking_enabled' ) && ! $post->post_type->is_tracking_enabled() ) {
+			return null;
+		}
+
+		return $post->stats;
+	}
+
+	public function get_reading_time_word_count( int $post_id ): int {
+		$post = get_post( $post_id );
+		if ( ! $post instanceof \WP_Post ) {
+			return 0;
+		}
+
+		$content = strip_shortcodes( (string) $post->post_content );
+		$content = wp_strip_all_tags( $content );
+		$content = html_entity_decode( $content, ENT_QUOTES, get_bloginfo( 'charset' ) ?: 'UTF-8' );
+
+		if ( trim( $content ) === '' ) {
+			return 0;
+		}
+
+		preg_match_all( "/[\p{L}\p{N}']+/u", $content, $matches );
+		return count( $matches[0] ?? [] );
+	}
+
+	public function get_reading_time_minutes( int $post_id ): int {
+		$word_count = $this->get_reading_time_word_count( $post_id );
+		if ( $word_count === 0 ) {
+			return 0;
+		}
+
+		$words_per_minute = absint( apply_filters( 'voxel_likes/reading_time_words_per_minute', 200, $post_id ) );
+		$words_per_minute = max( 1, $words_per_minute );
+
+		return max( 1, (int) ceil( $word_count / $words_per_minute ) );
+	}
+
+	public function get_reading_time_label( int $post_id ): string {
+		$minutes = $this->get_reading_time_minutes( $post_id );
+		return sprintf(
+			/* translators: %d: estimated reading time in minutes. */
+			__( '%d min read', 'voxel-likes' ),
+			$minutes
 		);
 	}
 

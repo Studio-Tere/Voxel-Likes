@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Voxel Likes 0.2.2\n"
+"Project-Id-Version: Voxel Likes 0.3.0\n"
 "Report-Msgid-Bugs-To: https://studiotere.io\n"
 "POT-Creation-Date: 2026-06-18 00:00+0000\n"
 "PO-Revision-Date: 2026-06-18 00:00+0000\n"
@@ -16,8 +16,8 @@ msgstr ""
 msgid "Voxel Likes"
 msgstr "Voxel Likes"
 
-msgid "Adds reusable IP-based likes for Voxel posts, Voxel Actions, dynamic tags, and listing order filters."
-msgstr "Añade Me gusta reutilizables basados en IP para posts de Voxel, Actions, tags dinámicos y filtros de orden en listings."
+msgid "Adds reusable IP-based likes, post views, reading time, Voxel Actions, dynamic tags, and listing order filters."
+msgstr "Añade Me gusta reutilizables basados en IP, vistas del post, tiempo de lectura, Actions de Voxel, tags dinámicos y filtros de orden."
 
 msgid "Ver detalles de Voxel Likes"
 msgstr "Ver detalles de Voxel Likes"
@@ -36,6 +36,15 @@ msgstr "Conserva las filas de Ya no me gusta con liked = 0 para mantener el esta
 
 msgid "Adds a Voxel search order for posts with the most likes."
 msgstr "Añade un orden de búsqueda de Voxel para posts con más Me gusta."
+
+msgid "Version 0.3.0"
+msgstr "Versión 0.3.0"
+
+msgid "Added Post views and Reading time actions for the Voxel Actions widget."
+msgstr "Se añadieron las acciones Vistas del post y Tiempo de lectura para el widget Actions de Voxel."
+
+msgid "Added dynamic tags for post views and reading time."
+msgstr "Se añadieron tags dinámicos para vistas del post y tiempo de lectura."
 
 msgid "Version 0.2.2"
 msgstr "Versión 0.2.2"
@@ -94,8 +103,11 @@ msgstr "Más Me gusta"
 msgid "Like"
 msgstr "Me gusta"
 
-msgid "Like count"
-msgstr "Cantidad de Me gusta"
+msgid "Post views"
+msgstr "Vistas del post"
+
+msgid "Reading time"
+msgstr "Tiempo de lectura"
 
 msgid "Likes"
 msgstr "Me gusta"
@@ -106,14 +118,53 @@ msgstr "Datos de Me gusta para este post."
 msgid "Total"
 msgstr "Total"
 
+msgid "Live number of active likes for this post."
+msgstr "Número en vivo de Me gusta activos para este post."
+
 msgid "Count"
 msgstr "Cantidad"
+
+msgid "Like count"
+msgstr "Cantidad de Me gusta"
 
 msgid "Number of active likes for this post."
 msgstr "Número de Me gusta activos para este post."
 
-msgid "Live number of active likes for this post."
-msgstr "Número en vivo de Me gusta activos para este post."
+msgid "Views"
+msgstr "Vistas"
+
+msgid "Voxel traffic stats for this post."
+msgstr "Estadísticas de tráfico de Voxel para este post."
+
+msgid "All-time view count for this post."
+msgstr "Cantidad total de vistas de este post."
+
+msgid "Unique total"
+msgstr "Total único"
+
+msgid "All-time unique view count for this post."
+msgstr "Cantidad total de vistas únicas de este post."
+
+msgid "Estimated reading time for this post."
+msgstr "Tiempo de lectura estimado para este post."
+
+msgid "Minutes"
+msgstr "Minutos"
+
+msgid "Estimated reading time in minutes."
+msgstr "Tiempo de lectura estimado en minutos."
+
+msgid "Label"
+msgstr "Etiqueta"
+
+msgid "Localized reading time label."
+msgstr "Etiqueta traducida del tiempo de lectura."
+
+msgid "Word count"
+msgstr "Cantidad de palabras"
+
+msgid "Approximate number of words in the post content."
+msgstr "Número aproximado de palabras en el contenido del post."
 
 msgid "Liked"
 msgstr "Me gusta"
@@ -124,5 +175,5 @@ msgstr "Solicitud no válida."
 msgid "Invalid post."
 msgstr "Post no válido."
 
-msgid "Post likes"
-msgstr "Me gusta de posts"
+msgid "%d min read"
+msgstr "%d min de lectura"

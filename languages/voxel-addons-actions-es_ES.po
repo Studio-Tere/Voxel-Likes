@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Voxel Addons Actions 0.3.1\n"
+"Project-Id-Version: Voxel Addons Actions 0.4.0\n"
 "Report-Msgid-Bugs-To: https://studiotere.io\n"
 "POT-Creation-Date: 2026-06-18 00:00+0000\n"
 "PO-Revision-Date: 2026-06-18 00:00+0000\n"
@@ -36,6 +36,15 @@ msgstr "Conserva las filas de Ya no me gusta con liked = 0 para mantener el esta
 
 msgid "Adds a Voxel search order for posts with the most likes."
 msgstr "Añade un orden de búsqueda de Voxel para posts con más Me gusta."
+
+msgid "Version 0.4.0"
+msgstr "Versión 0.4.0"
+
+msgid "Added built-in post view tracking with total and unique view counters."
+msgstr "Se añadió seguimiento propio de vistas de posts con contadores totales y únicos."
+
+msgid "Reading time labels now output only the numeric minute value."
+msgstr "Las etiquetas de tiempo de lectura ahora muestran solo el valor numérico en minutos."
 
 msgid "Version 0.3.1"
 msgstr "Versión 0.3.1"
@@ -139,14 +148,17 @@ msgstr "Número de Me gusta activos para este post."
 msgid "Views"
 msgstr "Vistas"
 
-msgid "Voxel traffic stats for this post."
-msgstr "Estadísticas de tráfico de Voxel para este post."
+msgid "View data for this post."
+msgstr "Datos de vistas para este post."
 
 msgid "All-time view count for this post."
 msgstr "Cantidad total de vistas de este post."
 
 msgid "Unique total"
 msgstr "Total único"
+
+msgid "Unique views"
+msgstr "Vistas únicas"
 
 msgid "All-time unique view count for this post."
 msgstr "Cantidad total de vistas únicas de este post."
@@ -162,6 +174,12 @@ msgstr "Tiempo de lectura estimado en minutos."
 
 msgid "Label"
 msgstr "Etiqueta"
+
+msgid "Reading time minute value as text."
+msgstr "Valor del tiempo de lectura en minutos como texto."
+
+msgid "Formatted label"
+msgstr "Etiqueta con formato"
 
 msgid "Localized reading time label."
 msgstr "Etiqueta traducida del tiempo de lectura."

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Voxel Addons Actions
  * Description: Adds reusable IP-based likes, post views, reading time, Voxel Actions, dynamic tags, and listing order filters.
- * Version: 0.3.1
+ * Version: 0.4.0
  * Author: Studio Tere
  * Author URI: https://studiotere.io
  * Plugin URI: https://studiotere.io
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 final class Voxel_Addons_Actions_Plugin {
-	const VERSION = '0.3.1';
+	const VERSION = '0.4.0';
 	const PLUGIN_SLUG = 'voxel-addons-actions';
 	const ACTION_TYPE = 'voxel_like';
 	const LEGACY_ACTION_TYPE = 'publicacion_like';
@@ -44,6 +44,8 @@ final class Voxel_Addons_Actions_Plugin {
 		add_action( 'plugins_loaded', [ $this, 'load_textdomain' ] );
 		add_filter( 'plugin_row_meta', [ $this, 'add_plugin_details_link' ], 10, 2 );
 		add_filter( 'plugins_api', [ $this, 'plugin_information' ], 10, 3 );
+		add_action( 'init', [ $this, 'maybe_upgrade_database' ], 1 );
+		add_action( 'template_redirect', [ $this, 'record_current_post_view' ], 20 );
 		add_filter( 'voxel/advanced-list/actions', [ $this, 'register_voxel_action' ] );
 		add_action( 'voxel/advanced-list/action:' . self::ACTION_TYPE, [ $this, 'render_voxel_action' ], 10, 2 );
 		add_action( 'voxel/advanced-list/action:' . self::LEGACY_ACTION_TYPE, [ $this, 'render_voxel_action' ], 10, 2 );
@@ -64,7 +66,7 @@ final class Voxel_Addons_Actions_Plugin {
 		add_action( 'wp_ajax_' . self::LEGACY_AJAX_ACTION, [ $this, 'handle_toggle_request' ] );
 		add_action( 'wp_ajax_nopriv_' . self::LEGACY_AJAX_ACTION, [ $this, 'handle_toggle_request' ] );
 
-		add_action( 'before_delete_post', [ $this, 'delete_post_likes' ], 10, 2 );
+		add_action( 'before_delete_post', [ $this, 'delete_post_data' ], 10, 2 );
 		add_action( 'wp_enqueue_scripts', [ $this, 'register_assets' ] );
 	}
 
@@ -123,7 +125,10 @@ final class Voxel_Addons_Actions_Plugin {
 					esc_html__( 'Adds a Voxel search order for posts with the most likes.', 'voxel-addons-actions' )
 				),
 				'actualizaciones_de_version' => sprintf(
-					'<h4>%s</h4><ul><li>%s</li></ul><h4>%s</h4><ul><li>%s</li><li>%s</li></ul><h4>%s</h4><ul><li>%s</li></ul><h4>%s</h4><ul><li>%s</li><li>%s</li></ul><h4>%s</h4><ul><li>%s</li><li>%s</li><li>%s</li></ul><h4>%s</h4><ul><li>%s</li></ul><h4>%s</h4><ul><li>%s</li><li>%s</li><li>%s</li><li>%s</li></ul>',
+					'<h4>%s</h4><ul><li>%s</li><li>%s</li></ul><h4>%s</h4><ul><li>%s</li></ul><h4>%s</h4><ul><li>%s</li><li>%s</li></ul><h4>%s</h4><ul><li>%s</li></ul><h4>%s</h4><ul><li>%s</li><li>%s</li></ul><h4>%s</h4><ul><li>%s</li><li>%s</li><li>%s</li></ul><h4>%s</h4><ul><li>%s</li></ul><h4>%s</h4><ul><li>%s</li><li>%s</li><li>%s</li><li>%s</li></ul>',
+					esc_html__( 'Version 0.4.0', 'voxel-addons-actions' ),
+					esc_html__( 'Added built-in post view tracking with total and unique view counters.', 'voxel-addons-actions' ),
+					esc_html__( 'Reading time labels now output only the numeric minute value.', 'voxel-addons-actions' ),
 					esc_html__( 'Version 0.3.1', 'voxel-addons-actions' ),
 					esc_html__( 'Renamed the plugin to Voxel Addons Actions.', 'voxel-addons-actions' ),
 					esc_html__( 'Version 0.3.0', 'voxel-addons-actions' ),
@@ -151,12 +156,27 @@ final class Voxel_Addons_Actions_Plugin {
 	}
 
 	public static function activate(): void {
-		self::create_table();
+		self::create_tables();
 		self::migrate_legacy_table();
 		self::install_voxel_search_config();
+		update_option( 'voxel_addons_actions_version', self::VERSION );
 	}
 
-	public static function create_table(): void {
+	public function maybe_upgrade_database(): void {
+		if ( get_option( 'voxel_addons_actions_version' ) === self::VERSION ) {
+			return;
+		}
+
+		self::create_tables();
+		update_option( 'voxel_addons_actions_version', self::VERSION );
+	}
+
+	public static function create_tables(): void {
+		self::create_likes_table();
+		self::create_views_table();
+	}
+
+	public static function create_likes_table(): void {
 		global $wpdb;
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -175,6 +195,29 @@ final class Voxel_Addons_Actions_Plugin {
 			UNIQUE KEY post_ip (post_id, ip_hash),
 			KEY post_liked (post_id, liked),
 			KEY updated_at (updated_at)
+		) {$charset_collate};";
+
+		dbDelta( $sql );
+	}
+
+	public static function create_views_table(): void {
+		global $wpdb;
+
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+
+		$table = self::views_table_name();
+		$charset_collate = $wpdb->get_charset_collate();
+
+		$sql = "CREATE TABLE {$table} (
+			id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+			post_id BIGINT(20) UNSIGNED NOT NULL,
+			ip_hash CHAR(64) NOT NULL,
+			views_count BIGINT(20) UNSIGNED NOT NULL DEFAULT 1,
+			created_at DATETIME NOT NULL,
+			updated_at DATETIME NOT NULL,
+			PRIMARY KEY  (id),
+			UNIQUE KEY post_ip (post_id, ip_hash),
+			KEY post_updated (post_id, updated_at)
 		) {$charset_collate};";
 
 		dbDelta( $sql );
@@ -386,7 +429,7 @@ final class Voxel_Addons_Actions_Plugin {
 
 		$properties['views'] = \Voxel\Dynamic_Data\Tag::Object(
 			__( 'Views', 'voxel-addons-actions' ),
-			__( 'Voxel traffic stats for this post.', 'voxel-addons-actions' )
+			__( 'View data for this post.', 'voxel-addons-actions' )
 		)->properties( function() use ( $views_cb, $unique_views_cb ) {
 			return [
 				'total' => \Voxel\Dynamic_Data\Tag::Number(
@@ -399,6 +442,10 @@ final class Voxel_Addons_Actions_Plugin {
 				)->render( $views_cb ),
 				'unique_total' => \Voxel\Dynamic_Data\Tag::Number(
 					__( 'Unique total', 'voxel-addons-actions' ),
+					__( 'All-time unique view count for this post.', 'voxel-addons-actions' )
+				)->render( $unique_views_cb ),
+				'unique' => \Voxel\Dynamic_Data\Tag::Number(
+					__( 'Unique views', 'voxel-addons-actions' ),
 					__( 'All-time unique view count for this post.', 'voxel-addons-actions' )
 				)->render( $unique_views_cb ),
 			];
@@ -415,8 +462,18 @@ final class Voxel_Addons_Actions_Plugin {
 				)->render( $reading_minutes_cb ),
 				'label' => \Voxel\Dynamic_Data\Tag::String(
 					__( 'Label', 'voxel-addons-actions' ),
-					__( 'Localized reading time label.', 'voxel-addons-actions' )
+					__( 'Reading time minute value as text.', 'voxel-addons-actions' )
 				)->render( $reading_label_cb ),
+				'formatted' => \Voxel\Dynamic_Data\Tag::String(
+					__( 'Formatted label', 'voxel-addons-actions' ),
+					__( 'Localized reading time label.', 'voxel-addons-actions' )
+				)->render( function() use ( $reading_minutes_cb ) {
+					return sprintf(
+						/* translators: %d: estimated reading time in minutes. */
+						__( '%d min read', 'voxel-addons-actions' ),
+						$reading_minutes_cb()
+					);
+				} ),
 				'words' => \Voxel\Dynamic_Data\Tag::Number(
 					__( 'Word count', 'voxel-addons-actions' ),
 					__( 'Approximate number of words in the post content.', 'voxel-addons-actions' )
@@ -520,7 +577,7 @@ final class Voxel_Addons_Actions_Plugin {
 		}
 
 		$text = $this->normalize_action_text( $action['ts_acw_initial_text'] ?? '' );
-		$content = $text !== '' ? $text : $this->get_reading_time_label( $post_id );
+		$content = $text !== '' ? $text : (string) $this->get_reading_time_minutes( $post_id );
 		$this->render_metric_action( $widget, $action, $content, __( 'Reading time', 'voxel-addons-actions' ), 'voxel-reading-time-action' );
 	}
 
@@ -568,9 +625,10 @@ final class Voxel_Addons_Actions_Plugin {
 		);
 	}
 
-	public function delete_post_likes( int $post_id, \WP_Post $post ): void {
+	public function delete_post_data( int $post_id, \WP_Post $post ): void {
 		global $wpdb;
 		$wpdb->delete( self::table_name(), [ 'post_id' => $post_id ], [ '%d' ] );
+		$wpdb->delete( self::views_table_name(), [ 'post_id' => $post_id ], [ '%d' ] );
 	}
 
 	private function toggle_like( int $post_id ): bool {
@@ -655,30 +713,29 @@ final class Voxel_Addons_Actions_Plugin {
 	}
 
 	public function get_post_views( int $post_id, string $timeframe = 'all' ): int {
-		$stats = $this->get_voxel_post_stats( $post_id );
-		return $stats && method_exists( $stats, 'get_views' ) ? absint( $stats->get_views( $timeframe ) ) : 0;
+		global $wpdb;
+
+		return absint(
+			$wpdb->get_var(
+				$wpdb->prepare(
+					'SELECT COALESCE(SUM(views_count), 0) FROM ' . self::views_table_name() . ' WHERE post_id = %d',
+					$post_id
+				)
+			)
+		);
 	}
 
 	public function get_post_unique_views( int $post_id, string $timeframe = 'all' ): int {
-		$stats = $this->get_voxel_post_stats( $post_id );
-		return $stats && method_exists( $stats, 'get_unique_views' ) ? absint( $stats->get_unique_views( $timeframe ) ) : 0;
-	}
+		global $wpdb;
 
-	private function get_voxel_post_stats( int $post_id ) {
-		if ( ! class_exists( '\Voxel\Post' ) ) {
-			return null;
-		}
-
-		$post = \Voxel\Post::get( $post_id );
-		if ( ! $post || ! isset( $post->stats ) ) {
-			return null;
-		}
-
-		if ( isset( $post->post_type ) && method_exists( $post->post_type, 'is_tracking_enabled' ) && ! $post->post_type->is_tracking_enabled() ) {
-			return null;
-		}
-
-		return $post->stats;
+		return absint(
+			$wpdb->get_var(
+				$wpdb->prepare(
+					'SELECT COUNT(*) FROM ' . self::views_table_name() . ' WHERE post_id = %d',
+					$post_id
+				)
+			)
+		);
 	}
 
 	public function get_reading_time_word_count( int $post_id ): int {
@@ -713,11 +770,47 @@ final class Voxel_Addons_Actions_Plugin {
 	}
 
 	public function get_reading_time_label( int $post_id ): string {
-		$minutes = $this->get_reading_time_minutes( $post_id );
-		return sprintf(
-			/* translators: %d: estimated reading time in minutes. */
-			__( '%d min read', 'voxel-addons-actions' ),
-			$minutes
+		return (string) $this->get_reading_time_minutes( $post_id );
+	}
+
+	public function record_current_post_view(): void {
+		if ( is_admin() || wp_doing_ajax() || wp_doing_cron() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) || is_preview() || is_feed() || is_robots() ) {
+			return;
+		}
+
+		if ( ! is_singular() ) {
+			return;
+		}
+
+		$post_id = absint( get_queried_object_id() );
+		if ( ! $this->is_valid_viewable_post( $post_id ) ) {
+			return;
+		}
+
+		$this->record_post_view( $post_id );
+	}
+
+	public function record_post_view( int $post_id ): void {
+		global $wpdb;
+
+		if ( ! $this->is_valid_viewable_post( $post_id ) ) {
+			return;
+		}
+
+		$table = self::views_table_name();
+		$ip_hash = $this->current_ip_hash();
+		$now = current_time( 'mysql' );
+
+		$wpdb->query(
+			$wpdb->prepare(
+				"INSERT INTO {$table} (post_id, ip_hash, views_count, created_at, updated_at)
+				VALUES (%d, %s, 1, %s, %s)
+				ON DUPLICATE KEY UPDATE views_count = views_count + 1, updated_at = VALUES(updated_at)",
+				$post_id,
+				$ip_hash,
+				$now,
+				$now
+			)
 		);
 	}
 
@@ -759,6 +852,23 @@ final class Voxel_Addons_Actions_Plugin {
 		return ! in_array( $post->post_status, [ 'auto-draft', 'trash' ], true );
 	}
 
+	public function is_valid_viewable_post( int $post_id ): bool {
+		$post = get_post( $post_id );
+		if ( ! $post instanceof \WP_Post ) {
+			return false;
+		}
+
+		if ( $post->post_status !== 'publish' ) {
+			return false;
+		}
+
+		if ( in_array( $post->post_type, [ 'revision', 'nav_menu_item', 'customize_changeset', 'oembed_cache', 'attachment' ], true ) ) {
+			return false;
+		}
+
+		return apply_filters( 'voxel_addons_actions/track_post_view', true, $post_id, $post );
+	}
+
 	private function normalize_action_text( $text ): string {
 		$text = is_scalar( $text ) ? trim( (string) $text ) : '';
 		if ( $text === '' ) {
@@ -794,6 +904,11 @@ final class Voxel_Addons_Actions_Plugin {
 	public static function table_name(): string {
 		global $wpdb;
 		return $wpdb->prefix . 'voxel_likes';
+	}
+
+	public static function views_table_name(): string {
+		global $wpdb;
+		return $wpdb->prefix . 'voxel_addons_actions_views';
 	}
 }
 

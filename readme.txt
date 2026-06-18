@@ -1,0 +1,95 @@
+=== Voxel Likes ===
+Contributors: Studio Tere
+Tags: voxel, likes, elementor, dynamic tags, listings
+Requires at least: 6.0
+Tested up to: 6.8
+Requires PHP: 8.0
+Stable tag: 0.2.2
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+
+Adds reusable IP-based likes for Voxel posts, Actions, dynamic tags, and listing order filters.
+
+== Description ==
+
+Voxel Likes adds a reusable like/unlike system for WordPress sites using the Voxel theme.
+
+It supports guests and logged-in users, stores only an HMAC hash of the visitor IP, and keeps unlike rows with liked = 0 so the state can be toggled without creating duplicate rows.
+
+Features:
+
+* Adds a Like action to the Voxel Actions widget.
+* Adds dynamic tags: @post(likes.total) and @post(likes.count).
+* Updates like counters through AJAX after toggling a like.
+* Adds a Mas likes order option to Voxel post type filters and listings.
+* Cleans likes automatically when a post is permanently deleted.
+* Uses a dedicated table: wp_voxel_likes.
+
+== Installation ==
+
+1. Upload the voxel-likes folder to wp-content/plugins/.
+2. Activate Voxel Likes from the WordPress Plugins screen.
+3. Open or refresh the WordPress admin once so Voxel post type search settings can be updated.
+
+== Usage ==
+
+= Voxel Actions =
+
+In the Actions (VX) widget, add the Like action.
+
+The action does not force visible text by default. Use the action icon and the widget text field if you want a label.
+
+= Dynamic Tags =
+
+Use these Voxel dynamic tags anywhere the current post is available:
+
+* @post(likes.total)
+* @post(likes.count)
+
+Both tags output the active like count and update through AJAX after a visitor toggles a like on the same page.
+
+= Listings And Sorting =
+
+Voxel Likes adds a Mas likes order option to Voxel post type search settings.
+
+For the Post Feed (VX) widget, use the Filters data source and add/use the Ordenar filter. The Mas likes option sorts posts by active like count.
+
+== Data Storage ==
+
+Likes are stored in wp_voxel_likes.
+
+Columns:
+
+* post_id: WordPress post ID.
+* ip_hash: HMAC hash of the visitor IP using WordPress salts.
+* liked: 1 for liked, 0 for unliked.
+* created_at: first row creation time.
+* updated_at: last state change time.
+
+Raw IP addresses are not stored.
+
+== Changelog ==
+
+= 0.2.2 =
+
+* Like counter dynamic tags update through AJAX after toggling a like.
+* @post(likes.total) and @post(likes.count) output live counter markup.
+
+= 0.2.1 =
+
+* Added the likes dynamic tag group with total and count values.
+* Removed automatic visible text/count from the Like action.
+
+= 0.2.0 =
+
+* Renamed the plugin to Voxel Likes.
+* Made likes work with any valid Voxel post type.
+* Installed the Mas likes order across Voxel post type filters.
+
+= 0.1.1 =
+
+* Added a Voxel dynamic tag for the like counter.
+
+= 0.1.0 =
+
+* Initial plugin release.

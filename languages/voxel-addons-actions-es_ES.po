@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Voxel Likes 0.3.0\n"
+"Project-Id-Version: Voxel Addons Actions 0.3.1\n"
 "Report-Msgid-Bugs-To: https://studiotere.io\n"
 "POT-Creation-Date: 2026-06-18 00:00+0000\n"
 "PO-Revision-Date: 2026-06-18 00:00+0000\n"
@@ -11,16 +11,16 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Domain: voxel-likes\n"
+"X-Domain: voxel-addons-actions\n"
 
-msgid "Voxel Likes"
-msgstr "Voxel Likes"
+msgid "Voxel Addons Actions"
+msgstr "Voxel Addons Actions"
 
 msgid "Adds reusable IP-based likes, post views, reading time, Voxel Actions, dynamic tags, and listing order filters."
 msgstr "Añade Me gusta reutilizables basados en IP, vistas del post, tiempo de lectura, Actions de Voxel, tags dinámicos y filtros de orden."
 
-msgid "Ver detalles de Voxel Likes"
-msgstr "Ver detalles de Voxel Likes"
+msgid "Ver detalles de Voxel Addons Actions"
+msgstr "Ver detalles de Voxel Addons Actions"
 
 msgid "Ver detalles"
 msgstr "Ver detalles"
@@ -36,6 +36,12 @@ msgstr "Conserva las filas de Ya no me gusta con liked = 0 para mantener el esta
 
 msgid "Adds a Voxel search order for posts with the most likes."
 msgstr "Añade un orden de búsqueda de Voxel para posts con más Me gusta."
+
+msgid "Version 0.3.1"
+msgstr "Versión 0.3.1"
+
+msgid "Renamed the plugin to Voxel Addons Actions."
+msgstr "Se renombró el plugin a Voxel Addons Actions."
 
 msgid "Version 0.3.0"
 msgstr "Versión 0.3.0"

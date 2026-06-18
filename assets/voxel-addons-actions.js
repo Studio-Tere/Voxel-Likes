@@ -17,7 +17,7 @@
 			return;
 		}
 
-		document.querySelectorAll('[data-voxel-likes-count][data-post-id="' + String(postId) + '"]').forEach(function (node) {
+		document.querySelectorAll('[data-voxel-addons-actions-count][data-post-id="' + String(postId) + '"]').forEach(function (node) {
 			node.textContent = String(count);
 		});
 	}

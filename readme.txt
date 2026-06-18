@@ -1,10 +1,10 @@
-=== Voxel Likes ===
+=== Voxel Addons Actions ===
 Contributors: Studio Tere
 Tags: voxel, likes, elementor, dynamic tags, listings
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 0.3.0
+Stable tag: 0.3.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ Adds reusable IP-based likes, post views, reading time, Actions, dynamic tags, a
 
 == Description ==
 
-Voxel Likes adds a reusable like/unlike system for WordPress sites using the Voxel theme.
+Voxel Addons Actions adds a reusable like/unlike system for WordPress sites using the Voxel theme.
 
 It supports guests and logged-in users, stores only an HMAC hash of the visitor IP, and keeps unlike rows with liked = 0 so the state can be toggled without creating duplicate rows.
 
@@ -27,8 +27,8 @@ Features:
 
 == Installation ==
 
-1. Upload the voxel-likes folder to wp-content/plugins/.
-2. Activate Voxel Likes from the WordPress Plugins screen.
+1. Upload the voxel-addons-actions folder to wp-content/plugins/.
+2. Activate Voxel Addons Actions from the WordPress Plugins screen.
 3. Open or refresh the WordPress admin once so Voxel post type search settings can be updated.
 
 == Usage ==
@@ -58,11 +58,11 @@ The likes tags output the active like count and update through AJAX after a visi
 
 The views tags read Voxel's native traffic statistics. Voxel statistics must be enabled for the relevant post type in Voxel > Settings > Statistics; otherwise, the tags return 0.
 
-Reading time is calculated from the WordPress post content at 200 words per minute by default. Developers can adjust this with the voxel_likes/reading_time_words_per_minute filter.
+Reading time is calculated from the WordPress post content at 200 words per minute by default. Developers can adjust this with the voxel_addons_actions/reading_time_words_per_minute filter. The previous voxel_likes/reading_time_words_per_minute filter is still supported for compatibility.
 
 = Listings And Sorting =
 
-Voxel Likes adds a Mas likes order option to Voxel post type search settings.
+Voxel Addons Actions adds a Mas likes order option to Voxel post type search settings.
 
 For the Post Feed (VX) widget, use the Filters data source and add/use the Ordenar filter. The Mas likes option sorts posts by active like count.
 
@@ -81,6 +81,12 @@ Columns:
 Raw IP addresses are not stored.
 
 == Changelog ==
+
+= 0.3.1 =
+
+* Renamed the plugin to Voxel Addons Actions.
+* Renamed the plugin slug, main file, text domain, language files, and asset handle to voxel-addons-actions.
+* Kept legacy action, AJAX, data table, and order type compatibility.
 
 = 0.3.0 =
 

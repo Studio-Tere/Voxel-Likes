@@ -4,14 +4,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class Voxel_Likes_Order extends \Voxel\Post_Types\Order_By\Base_Search_Order {
+class Voxel_Addons_Actions_Order extends \Voxel\Post_Types\Order_By\Base_Search_Order {
 	protected $props = [
-		'type' => 'voxel-likes',
+		'type' => 'voxel-addons-actions',
 		'order' => 'DESC',
 	];
 
 	public function get_label(): string {
-		return __( 'Post likes', 'voxel-likes' );
+		return __( 'Post likes', 'voxel-addons-actions' );
 	}
 
 	public function get_models(): array {

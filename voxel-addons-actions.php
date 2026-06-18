@@ -1,12 +1,12 @@
 <?php
 /**
- * Plugin Name: Voxel Likes
+ * Plugin Name: Voxel Addons Actions
  * Description: Adds reusable IP-based likes, post views, reading time, Voxel Actions, dynamic tags, and listing order filters.
- * Version: 0.3.0
+ * Version: 0.3.1
  * Author: Studio Tere
  * Author URI: https://studiotere.io
  * Plugin URI: https://studiotere.io
- * Text Domain: voxel-likes
+ * Text Domain: voxel-addons-actions
  * Domain Path: /languages
  */
 
@@ -14,9 +14,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-final class Voxel_Likes_Plugin {
-	const VERSION = '0.3.0';
-	const PLUGIN_SLUG = 'voxel-likes';
+final class Voxel_Addons_Actions_Plugin {
+	const VERSION = '0.3.1';
+	const PLUGIN_SLUG = 'voxel-addons-actions';
 	const ACTION_TYPE = 'voxel_like';
 	const LEGACY_ACTION_TYPE = 'publicacion_like';
 	const VIEWS_ACTION_TYPE = 'voxel_post_views';
@@ -26,8 +26,9 @@ final class Voxel_Likes_Plugin {
 	const NONCE_ACTION = 'voxel_likes_toggle';
 	const LEGACY_NONCE_ACTION = 'publicacion_likes_toggle';
 	const ORDER_KEY = 'most-liked';
-	const ORDER_TYPE = 'voxel-likes';
-	const LEGACY_ORDER_TYPE = 'publicacion-likes';
+	const ORDER_TYPE = 'voxel-addons-actions';
+	const LEGACY_ORDER_TYPE = 'voxel-likes';
+	const LEGACY_PUBLICACION_ORDER_TYPE = 'publicacion-likes';
 
 	private static $instance = null;
 
@@ -68,7 +69,7 @@ final class Voxel_Likes_Plugin {
 	}
 
 	public function load_textdomain(): void {
-		load_plugin_textdomain( 'voxel-likes', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+		load_plugin_textdomain( 'voxel-addons-actions', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 	}
 
 	public function add_plugin_details_link( array $links, string $file ): array {
@@ -90,8 +91,8 @@ final class Voxel_Likes_Plugin {
 		$links[] = sprintf(
 			'<a href="%s" class="thickbox open-plugin-details-modal" aria-label="%s">%s</a>',
 			esc_url( $url ),
-			esc_attr__( 'Ver detalles de Voxel Likes', 'voxel-likes' ),
-			esc_html__( 'Ver detalles', 'voxel-likes' )
+			esc_attr__( 'Ver detalles de Voxel Addons Actions', 'voxel-addons-actions' ),
+			esc_html__( 'Ver detalles', 'voxel-addons-actions' )
 		);
 
 		return $links;
@@ -103,7 +104,7 @@ final class Voxel_Likes_Plugin {
 		}
 
 		return (object) [
-			'name' => __( 'Voxel Likes', 'voxel-likes' ),
+			'name' => __( 'Voxel Addons Actions', 'voxel-addons-actions' ),
 			'slug' => self::PLUGIN_SLUG,
 			'version' => self::VERSION,
 			'author' => '<a href="https://studiotere.io">Studio Tere</a>',
@@ -115,33 +116,35 @@ final class Voxel_Likes_Plugin {
 			'sections' => [
 				'description' => sprintf(
 					'<p>%s</p><ul><li>%s</li><li>%s</li><li>%s</li><li>%s</li></ul>',
-					esc_html__( 'Adds reusable IP-based likes, post views, reading time, Voxel Actions, dynamic tags, and listing order filters.', 'voxel-likes' ),
-					esc_html__( 'Stores likes in a dedicated WordPress database table.', 'voxel-likes' ),
-					esc_html__( 'Uses an HMAC hash of the visitor IP instead of storing the raw IP address.', 'voxel-likes' ),
-					esc_html__( 'Keeps unlike rows with liked = 0 for state history.', 'voxel-likes' ),
-					esc_html__( 'Adds a Voxel search order for posts with the most likes.', 'voxel-likes' )
+					esc_html__( 'Adds reusable IP-based likes, post views, reading time, Voxel Actions, dynamic tags, and listing order filters.', 'voxel-addons-actions' ),
+					esc_html__( 'Stores likes in a dedicated WordPress database table.', 'voxel-addons-actions' ),
+					esc_html__( 'Uses an HMAC hash of the visitor IP instead of storing the raw IP address.', 'voxel-addons-actions' ),
+					esc_html__( 'Keeps unlike rows with liked = 0 for state history.', 'voxel-addons-actions' ),
+					esc_html__( 'Adds a Voxel search order for posts with the most likes.', 'voxel-addons-actions' )
 				),
 				'actualizaciones_de_version' => sprintf(
-					'<h4>%s</h4><ul><li>%s</li><li>%s</li></ul><h4>%s</h4><ul><li>%s</li></ul><h4>%s</h4><ul><li>%s</li><li>%s</li></ul><h4>%s</h4><ul><li>%s</li><li>%s</li><li>%s</li></ul><h4>%s</h4><ul><li>%s</li></ul><h4>%s</h4><ul><li>%s</li><li>%s</li><li>%s</li><li>%s</li></ul>',
-					esc_html__( 'Version 0.3.0', 'voxel-likes' ),
-					esc_html__( 'Added Post views and Reading time actions for the Voxel Actions widget.', 'voxel-likes' ),
-					esc_html__( 'Added dynamic tags for post views and reading time.', 'voxel-likes' ),
-					esc_html__( 'Version 0.2.2', 'voxel-likes' ),
-					esc_html__( 'Like counter dynamic tags now update through AJAX after toggling a like.', 'voxel-likes' ),
-					esc_html__( 'Version 0.2.1', 'voxel-likes' ),
-					esc_html__( 'Added the Likes dynamic tag group with total and count values.', 'voxel-likes' ),
-					esc_html__( 'Removed the automatic visible text and count from the Like action.', 'voxel-likes' ),
-					esc_html__( 'Version 0.2.0', 'voxel-likes' ),
-					esc_html__( 'Renamed the plugin to Voxel Likes.', 'voxel-likes' ),
-					esc_html__( 'Likes now work with any valid Voxel post type.', 'voxel-likes' ),
-					esc_html__( 'The Most liked order is installed across Voxel post type filters.', 'voxel-likes' ),
-					esc_html__( 'Version 0.1.1', 'voxel-likes' ),
-					esc_html__( 'Added a Voxel dynamic tag for the like counter.', 'voxel-likes' ),
-					esc_html__( 'Version 0.1.0', 'voxel-likes' ),
-					esc_html__( 'Initial plugin release.', 'voxel-likes' ),
-					esc_html__( 'Added the Like action for the Voxel Actions widget.', 'voxel-likes' ),
-					esc_html__( 'Added the likes table with hashed IP state tracking.', 'voxel-likes' ),
-					esc_html__( 'Added automatic cleanup when a post is permanently deleted.', 'voxel-likes' )
+					'<h4>%s</h4><ul><li>%s</li></ul><h4>%s</h4><ul><li>%s</li><li>%s</li></ul><h4>%s</h4><ul><li>%s</li></ul><h4>%s</h4><ul><li>%s</li><li>%s</li></ul><h4>%s</h4><ul><li>%s</li><li>%s</li><li>%s</li></ul><h4>%s</h4><ul><li>%s</li></ul><h4>%s</h4><ul><li>%s</li><li>%s</li><li>%s</li><li>%s</li></ul>',
+					esc_html__( 'Version 0.3.1', 'voxel-addons-actions' ),
+					esc_html__( 'Renamed the plugin to Voxel Addons Actions.', 'voxel-addons-actions' ),
+					esc_html__( 'Version 0.3.0', 'voxel-addons-actions' ),
+					esc_html__( 'Added Post views and Reading time actions for the Voxel Actions widget.', 'voxel-addons-actions' ),
+					esc_html__( 'Added dynamic tags for post views and reading time.', 'voxel-addons-actions' ),
+					esc_html__( 'Version 0.2.2', 'voxel-addons-actions' ),
+					esc_html__( 'Like counter dynamic tags now update through AJAX after toggling a like.', 'voxel-addons-actions' ),
+					esc_html__( 'Version 0.2.1', 'voxel-addons-actions' ),
+					esc_html__( 'Added the Likes dynamic tag group with total and count values.', 'voxel-addons-actions' ),
+					esc_html__( 'Removed the automatic visible text and count from the Like action.', 'voxel-addons-actions' ),
+					esc_html__( 'Version 0.2.0', 'voxel-addons-actions' ),
+					esc_html__( 'Renamed the plugin to Voxel Likes.', 'voxel-addons-actions' ),
+					esc_html__( 'Likes now work with any valid Voxel post type.', 'voxel-addons-actions' ),
+					esc_html__( 'The Most liked order is installed across Voxel post type filters.', 'voxel-addons-actions' ),
+					esc_html__( 'Version 0.1.1', 'voxel-addons-actions' ),
+					esc_html__( 'Added a Voxel dynamic tag for the like counter.', 'voxel-addons-actions' ),
+					esc_html__( 'Version 0.1.0', 'voxel-addons-actions' ),
+					esc_html__( 'Initial plugin release.', 'voxel-addons-actions' ),
+					esc_html__( 'Added the Like action for the Voxel Actions widget.', 'voxel-addons-actions' ),
+					esc_html__( 'Added the likes table with hashed IP state tracking.', 'voxel-addons-actions' ),
+					esc_html__( 'Added automatic cleanup when a post is permanently deleted.', 'voxel-addons-actions' )
 				),
 			],
 		];
@@ -249,8 +252,8 @@ final class Voxel_Likes_Plugin {
 		if ( ! $has_order_filter ) {
 			$search['filters'][] = [
 				'type' => 'order-by',
-				'label' => __( 'Ordenar', 'voxel-likes' ),
-				'placeholder' => __( 'Ordenar', 'voxel-likes' ),
+				'label' => __( 'Ordenar', 'voxel-addons-actions' ),
+				'placeholder' => __( 'Ordenar', 'voxel-addons-actions' ),
 				'key' => 'sort',
 				'singular' => true,
 			];
@@ -271,7 +274,7 @@ final class Voxel_Likes_Plugin {
 			if ( ( $order['key'] ?? '' ) === self::ORDER_KEY ) {
 				$has_likes_order = true;
 				foreach ( (array) ( $order['clauses'] ?? [] ) as $clause_index => $clause ) {
-					if ( is_array( $clause ) && ( $clause['type'] ?? '' ) === self::LEGACY_ORDER_TYPE ) {
+					if ( is_array( $clause ) && in_array( $clause['type'] ?? '', [ self::LEGACY_ORDER_TYPE, self::LEGACY_PUBLICACION_ORDER_TYPE ], true ) ) {
 						$search['order'][ $index ]['clauses'][ $clause_index ]['type'] = self::ORDER_TYPE;
 						$changed = true;
 					}
@@ -283,8 +286,8 @@ final class Voxel_Likes_Plugin {
 		if ( ! $has_likes_order ) {
 			$search['order'][] = [
 				'key' => self::ORDER_KEY,
-				'label' => __( 'Mas likes', 'voxel-likes' ),
-				'placeholder' => __( 'Mas likes', 'voxel-likes' ),
+				'label' => __( 'Mas likes', 'voxel-addons-actions' ),
+				'placeholder' => __( 'Mas likes', 'voxel-addons-actions' ),
 				'icon' => '',
 				'clauses' => [
 					[
@@ -300,9 +303,9 @@ final class Voxel_Likes_Plugin {
 	}
 
 	public function register_voxel_action( array $actions ): array {
-		$actions[ self::ACTION_TYPE ] = __( 'Like', 'voxel-likes' );
-		$actions[ self::VIEWS_ACTION_TYPE ] = __( 'Post views', 'voxel-likes' );
-		$actions[ self::READING_TIME_ACTION_TYPE ] = __( 'Reading time', 'voxel-likes' );
+		$actions[ self::ACTION_TYPE ] = __( 'Like', 'voxel-addons-actions' );
+		$actions[ self::VIEWS_ACTION_TYPE ] = __( 'Post views', 'voxel-addons-actions' );
+		$actions[ self::READING_TIME_ACTION_TYPE ] = __( 'Reading time', 'voxel-addons-actions' );
 		return $actions;
 	}
 
@@ -311,9 +314,10 @@ final class Voxel_Likes_Plugin {
 			return $types;
 		}
 
-		require_once __DIR__ . '/includes/class-voxel-likes-order.php';
-		$types[ self::ORDER_TYPE ] = \Voxel_Likes_Order::class;
-		$types[ self::LEGACY_ORDER_TYPE ] = \Voxel_Likes_Order::class;
+		require_once __DIR__ . '/includes/class-voxel-addons-actions-order.php';
+		$types[ self::ORDER_TYPE ] = \Voxel_Addons_Actions_Order::class;
+		$types[ self::LEGACY_ORDER_TYPE ] = \Voxel_Addons_Actions_Order::class;
+		$types[ self::LEGACY_PUBLICACION_ORDER_TYPE ] = \Voxel_Addons_Actions_Order::class;
 
 		return $types;
 	}
@@ -335,7 +339,7 @@ final class Voxel_Likes_Plugin {
 		};
 		$live_count_cb = function() use ( $plugin, $post_id_cb ) {
 			$post_id = $post_id_cb();
-			wp_enqueue_script( 'voxel-likes' );
+			wp_enqueue_script( 'voxel-addons-actions' );
 			return $plugin->get_like_count_markup( $post_id, $post_id ? $plugin->get_like_count( $post_id ) : 0 );
 		};
 		$views_cb = function() use ( $plugin, $post_id_cb ) {
@@ -360,62 +364,62 @@ final class Voxel_Likes_Plugin {
 		};
 
 		$properties['likes'] = \Voxel\Dynamic_Data\Tag::Object(
-			__( 'Likes', 'voxel-likes' ),
-			__( 'Like data for this post.', 'voxel-likes' )
+			__( 'Likes', 'voxel-addons-actions' ),
+			__( 'Like data for this post.', 'voxel-addons-actions' )
 		)->properties( function() use ( $live_count_cb ) {
 			return [
 				'total' => \Voxel\Dynamic_Data\Tag::String(
-					__( 'Total', 'voxel-likes' ),
-					__( 'Live number of active likes for this post.', 'voxel-likes' )
+					__( 'Total', 'voxel-addons-actions' ),
+					__( 'Live number of active likes for this post.', 'voxel-addons-actions' )
 				)->render( $live_count_cb ),
 				'count' => \Voxel\Dynamic_Data\Tag::String(
-					__( 'Count', 'voxel-likes' ),
-					__( 'Live number of active likes for this post.', 'voxel-likes' )
+					__( 'Count', 'voxel-addons-actions' ),
+					__( 'Live number of active likes for this post.', 'voxel-addons-actions' )
 				)->render( $live_count_cb ),
 			];
 		} );
 
 		$properties['like_count'] = \Voxel\Dynamic_Data\Tag::Number(
-			__( 'Like count', 'voxel-likes' ),
-			__( 'Number of active likes for this post.', 'voxel-likes' )
+			__( 'Like count', 'voxel-addons-actions' ),
+			__( 'Number of active likes for this post.', 'voxel-addons-actions' )
 		)->render( $count_cb )->hidden();
 
 		$properties['views'] = \Voxel\Dynamic_Data\Tag::Object(
-			__( 'Views', 'voxel-likes' ),
-			__( 'Voxel traffic stats for this post.', 'voxel-likes' )
+			__( 'Views', 'voxel-addons-actions' ),
+			__( 'Voxel traffic stats for this post.', 'voxel-addons-actions' )
 		)->properties( function() use ( $views_cb, $unique_views_cb ) {
 			return [
 				'total' => \Voxel\Dynamic_Data\Tag::Number(
-					__( 'Total', 'voxel-likes' ),
-					__( 'All-time view count for this post.', 'voxel-likes' )
+					__( 'Total', 'voxel-addons-actions' ),
+					__( 'All-time view count for this post.', 'voxel-addons-actions' )
 				)->render( $views_cb ),
 				'count' => \Voxel\Dynamic_Data\Tag::Number(
-					__( 'Count', 'voxel-likes' ),
-					__( 'All-time view count for this post.', 'voxel-likes' )
+					__( 'Count', 'voxel-addons-actions' ),
+					__( 'All-time view count for this post.', 'voxel-addons-actions' )
 				)->render( $views_cb ),
 				'unique_total' => \Voxel\Dynamic_Data\Tag::Number(
-					__( 'Unique total', 'voxel-likes' ),
-					__( 'All-time unique view count for this post.', 'voxel-likes' )
+					__( 'Unique total', 'voxel-addons-actions' ),
+					__( 'All-time unique view count for this post.', 'voxel-addons-actions' )
 				)->render( $unique_views_cb ),
 			];
 		} );
 
 		$properties['reading_time'] = \Voxel\Dynamic_Data\Tag::Object(
-			__( 'Reading time', 'voxel-likes' ),
-			__( 'Estimated reading time for this post.', 'voxel-likes' )
+			__( 'Reading time', 'voxel-addons-actions' ),
+			__( 'Estimated reading time for this post.', 'voxel-addons-actions' )
 		)->properties( function() use ( $reading_minutes_cb, $reading_label_cb, $reading_words_cb ) {
 			return [
 				'minutes' => \Voxel\Dynamic_Data\Tag::Number(
-					__( 'Minutes', 'voxel-likes' ),
-					__( 'Estimated reading time in minutes.', 'voxel-likes' )
+					__( 'Minutes', 'voxel-addons-actions' ),
+					__( 'Estimated reading time in minutes.', 'voxel-addons-actions' )
 				)->render( $reading_minutes_cb ),
 				'label' => \Voxel\Dynamic_Data\Tag::String(
-					__( 'Label', 'voxel-likes' ),
-					__( 'Localized reading time label.', 'voxel-likes' )
+					__( 'Label', 'voxel-addons-actions' ),
+					__( 'Localized reading time label.', 'voxel-addons-actions' )
 				)->render( $reading_label_cb ),
 				'words' => \Voxel\Dynamic_Data\Tag::Number(
-					__( 'Word count', 'voxel-likes' ),
-					__( 'Approximate number of words in the post content.', 'voxel-likes' )
+					__( 'Word count', 'voxel-addons-actions' ),
+					__( 'Approximate number of words in the post content.', 'voxel-addons-actions' )
 				)->render( $reading_words_cb ),
 			];
 		} );
@@ -425,8 +429,8 @@ final class Voxel_Likes_Plugin {
 
 	public function register_assets(): void {
 		wp_register_script(
-			'voxel-likes',
-			plugins_url( 'assets/voxel-likes.js', __FILE__ ),
+			'voxel-addons-actions',
+			plugins_url( 'assets/voxel-addons-actions.js', __FILE__ ),
 			[],
 			self::VERSION,
 			true
@@ -439,13 +443,13 @@ final class Voxel_Likes_Plugin {
 			return;
 		}
 
-		wp_enqueue_script( 'voxel-likes' );
+		wp_enqueue_script( 'voxel-addons-actions' );
 
 		$is_liked = $this->is_liked_by_current_ip( $post_id );
 		$label = $this->normalize_action_text( $action['ts_acw_initial_text'] ?? '' );
 		$active_label = $this->normalize_action_text( $action['ts_acw_reveal_text'] ?? '' );
-		$inactive_aria_label = $label !== '' ? $label : __( 'Like', 'voxel-likes' );
-		$active_aria_label = $active_label !== '' ? $active_label : ( $label !== '' ? $label : __( 'Liked', 'voxel-likes' ) );
+		$inactive_aria_label = $label !== '' ? $label : __( 'Like', 'voxel-addons-actions' );
+		$active_aria_label = $active_label !== '' ? $active_label : ( $label !== '' ? $label : __( 'Liked', 'voxel-addons-actions' ) );
 		$aria_label = $is_liked ? $active_aria_label : $inactive_aria_label;
 		$tooltip_inactive = $action['ts_tooltip_text'] ?? '';
 		$tooltip_active = $action['ts_acw_tooltip_text'] ?? '';
@@ -506,7 +510,7 @@ final class Voxel_Likes_Plugin {
 
 		$text = $this->normalize_action_text( $action['ts_acw_initial_text'] ?? '' );
 		$content = $text !== '' ? $text : (string) $this->get_post_views( $post_id );
-		$this->render_metric_action( $widget, $action, $content, __( 'Post views', 'voxel-likes' ), 'voxel-post-views-action' );
+		$this->render_metric_action( $widget, $action, $content, __( 'Post views', 'voxel-addons-actions' ), 'voxel-post-views-action' );
 	}
 
 	public function render_reading_time_action( $widget, array $action ): void {
@@ -517,7 +521,7 @@ final class Voxel_Likes_Plugin {
 
 		$text = $this->normalize_action_text( $action['ts_acw_initial_text'] ?? '' );
 		$content = $text !== '' ? $text : $this->get_reading_time_label( $post_id );
-		$this->render_metric_action( $widget, $action, $content, __( 'Reading time', 'voxel-likes' ), 'voxel-reading-time-action' );
+		$this->render_metric_action( $widget, $action, $content, __( 'Reading time', 'voxel-addons-actions' ), 'voxel-reading-time-action' );
 	}
 
 	private function render_metric_action( $widget, array $action, string $content, string $aria_label, string $class_name ): void {
@@ -546,11 +550,11 @@ final class Voxel_Likes_Plugin {
 		$nonce = sanitize_text_field( wp_unslash( $_REQUEST['_wpnonce'] ?? '' ) );
 
 		if ( ! wp_verify_nonce( $nonce, self::NONCE_ACTION ) && ! wp_verify_nonce( $nonce, self::LEGACY_NONCE_ACTION ) ) {
-			wp_send_json_error( [ 'message' => __( 'Invalid request.', 'voxel-likes' ) ], 403 );
+			wp_send_json_error( [ 'message' => __( 'Invalid request.', 'voxel-addons-actions' ) ], 403 );
 		}
 
 		if ( ! $this->is_valid_likable_post( $post_id ) ) {
-			wp_send_json_error( [ 'message' => __( 'Invalid post.', 'voxel-likes' ) ], 404 );
+			wp_send_json_error( [ 'message' => __( 'Invalid post.', 'voxel-addons-actions' ) ], 404 );
 		}
 
 		$liked = $this->toggle_like( $post_id );
@@ -644,7 +648,7 @@ final class Voxel_Likes_Plugin {
 
 	public function get_like_count_markup( int $post_id, int $count ): string {
 		return sprintf(
-			'<span class="voxel-like-count" data-voxel-likes-count="1" data-post-id="%d">%d</span>',
+			'<span class="voxel-like-count" data-voxel-addons-actions-count="1" data-post-id="%d">%d</span>',
 			$post_id,
 			$count
 		);
@@ -701,7 +705,8 @@ final class Voxel_Likes_Plugin {
 			return 0;
 		}
 
-		$words_per_minute = absint( apply_filters( 'voxel_likes/reading_time_words_per_minute', 200, $post_id ) );
+		$words_per_minute = apply_filters( 'voxel_addons_actions/reading_time_words_per_minute', 200, $post_id );
+		$words_per_minute = absint( apply_filters( 'voxel_likes/reading_time_words_per_minute', $words_per_minute, $post_id ) );
 		$words_per_minute = max( 1, $words_per_minute );
 
 		return max( 1, (int) ceil( $word_count / $words_per_minute ) );
@@ -711,7 +716,7 @@ final class Voxel_Likes_Plugin {
 		$minutes = $this->get_reading_time_minutes( $post_id );
 		return sprintf(
 			/* translators: %d: estimated reading time in minutes. */
-			__( '%d min read', 'voxel-likes' ),
+			__( '%d min read', 'voxel-addons-actions' ),
 			$minutes
 		);
 	}
@@ -776,6 +781,7 @@ final class Voxel_Likes_Plugin {
 	private function current_ip(): string {
 		$ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
 		$ip = is_string( $ip ) ? trim( $ip ) : '0.0.0.0';
+		$ip = apply_filters( 'voxel_addons_actions/current_ip', $ip );
 		return apply_filters( 'voxel_likes/current_ip', $ip );
 	}
 
@@ -791,5 +797,5 @@ final class Voxel_Likes_Plugin {
 	}
 }
 
-register_activation_hook( __FILE__, [ 'Voxel_Likes_Plugin', 'activate' ] );
-Voxel_Likes_Plugin::instance();
+register_activation_hook( __FILE__, [ 'Voxel_Addons_Actions_Plugin', 'activate' ] );
+Voxel_Addons_Actions_Plugin::instance();
